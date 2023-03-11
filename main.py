@@ -23,42 +23,47 @@ today = datetime.today()
 friday = today + timedelta( (4-today.weekday()) % 7 )
 endDate = (friday + timedelta(days=35)).strftime('%Y-%m-%d')
 endDate = '2023-03-17'
-
+insertStatement = "INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES "
+strikeCount = 100
 
 for symbol in stockList:
-    url = f"https://api.tdameritrade.com/v1/marketdata/chains?apikey={tdAPIkey}&symbol={symbol}&strikeCount=5&fromDate=2022-10-10&toDate={endDate}"
+    url = f"https://api.tdameritrade.com/v1/marketdata/chains?apikey={tdAPIkey}&symbol={symbol}&strikeCount={strikeCount}&fromDate=2022-10-10&toDate={endDate}"
 
     payload={}
     headers = {}
 
     response = requests.request("GET", url, headers=headers, data=payload).json()
 
-    # calls 
-    for expDate in response['callExpDateMap']:
-        for strike in response['callExpDateMap'][expDate]:
-            for contract in response['callExpDateMap'][expDate][strike]:
-                #print(json.dumps(contract, indent=2))
-                putCall = contract['putCall']
-                symbol = contract['symbol']
-                description = contract['description']
-                bid = contract['bid']
-                ask = contract['ask']
-                last = contract['ask']
-                mark = contract['mark']
-                openInterest = contract['openInterest']
+    for currentMap in response:
+        if currentMap != 'callExpDateMap' and currentMap != 'putExpDateMap':
+            continue
+        for expDate in response[currentMap]:
+            for strike in response[currentMap][expDate]:
+                for contract in response[currentMap][expDate][strike]:
+                    #print(json.dumps(contract, indent=2))
+                    putCall = contract['putCall']
+                    contractSymbol = contract['symbol']
+                    description = contract['description']
+                    bid = contract['bid']
+                    ask = contract['ask']
+                    last = contract['ask']
+                    mark = contract['mark']
+                    openInterest = contract['openInterest']
 
-                insertStatement = f"INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES ('{putCall}', '{symbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}')"
-                print(insertStatement)
-                mycursor.execute(insertStatement)
-                
-    break
+                    insertStatement += f"('{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}'), "
 
-    # puts
-    for expDate in response['putExpDateMap']:
-        for strike in response['putExpDateMap'][expDate]:
-            for contract in response['putExpDateMap'][expDate][strike]:
-                print(contract['symbol'])
+    print(symbol + ' done...')                
 
-myresult = mycursor.fetchall()
-for x in myresult:
-  print(x)
+insertStatement = insertStatement[:-2]
+try:
+    mySql_insert_query = insertStatement
+    mycursor.execute(mySql_insert_query)
+    mydb.commit()
+    print(mycursor.rowcount, "records inserted successfully into todaysDate table")
+    mycursor.close()
+except mysql.connector.Error as error:
+    print("Failed to insert record into Laptop table {}".format(error))
+finally:
+    if mydb.is_connected():
+        mydb.close()
+        print("MySQL connection is closed")
