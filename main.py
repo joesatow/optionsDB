@@ -48,7 +48,7 @@ for symbol in stockList:
                 openInterest = contract['openInterest']
 
                 insertStatement = f"INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES ('{putCall}', '{symbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}')"
-                #print(insertStatement)
+                print(insertStatement)
                 mycursor.execute(insertStatement)
                 
     break
