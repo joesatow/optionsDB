@@ -2,10 +2,9 @@ import mysql.connector
 from datetime import datetime, timedelta
 from helper_funcs.stockList import getSymbols
 from ratelimiter import RateLimiter
-from tqdm import tqdm
 import os
 import requests
-import json
+import time
 
 mysqlPass = os.environ['mysqlpass']
 tdAPIkey = os.environ['td_api_key']
@@ -20,7 +19,6 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-# today = datetime.today().strftime('%Y-%m-%d')
 today = datetime.today()
 friday = today + timedelta( (4-today.weekday()) % 7 )
 endDate = (friday + timedelta(days=35)).strftime('%Y-%m-%d')
@@ -28,7 +26,11 @@ endDate = '2023-03-17'
 insertStatement = "INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES "
 strikeCount = 1
 
-@RateLimiter(max_calls=115, period=60)
+def limited(until):
+    duration = int(round(until - time.time()))
+    print('Rate limited, sleeping for {:d} seconds'.format(duration))
+
+@RateLimiter(max_calls=115, period=60, callback=limited)
 def callAPI(symbol):
     url = f"https://api.tdameritrade.com/v1/marketdata/chains?apikey={tdAPIkey}&symbol={symbol}&strikeCount={strikeCount}&fromDate=2022-10-10&toDate={endDate}"
     payload={}
