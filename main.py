@@ -23,7 +23,7 @@ today = datetime.today()
 friday = today + timedelta( (4-today.weekday()) % 7 )
 endDate = (friday + timedelta(days=35)).strftime('%Y-%m-%d')
 endDate = '2023-03-17'
-insertStatement = "INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES "
+insertStatement = "INSERT INTO `todaysDate` (`symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES "
 strikeCount = 1
 
 def limited(until):
@@ -61,7 +61,7 @@ for symbol in stockList:
                 mark = contract['mark']
                 openInterest = contract['openInterest']
 
-                insertStatement += f"('{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}'), "
+                insertStatement += f"('{symbol}','{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}'), "
 
     print(symbol + ' done...')                
 
