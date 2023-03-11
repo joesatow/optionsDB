@@ -37,7 +37,7 @@ for symbol in stockList:
     if response['status'] == 'FAILED':
         print("error: ")
         print(response)
-        break
+        continue
     for currentMap in response:
         if currentMap != 'callExpDateMap' and currentMap != 'putExpDateMap':
             continue
@@ -56,7 +56,7 @@ for symbol in stockList:
 
                 insertStatement += f"('{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}'), "
 
-    print(symbol + ' done...')                
+    #print(symbol + ' done...')                
 
 insertStatement = insertStatement[:-2]
 try:
