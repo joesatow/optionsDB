@@ -18,13 +18,6 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-mycursor.execute("SELECT * FROM todaysDate")
-
-myresult = mycursor.fetchall()
-for x in myresult:
-  print(x)
-
-
 # today = datetime.today().strftime('%Y-%m-%d')
 today = datetime.today()
 friday = today + timedelta( (4-today.weekday()) % 7 )
@@ -54,9 +47,10 @@ for symbol in stockList:
                 mark = contract['mark']
                 openInterest = contract['openInterest']
 
-                string = f"INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES ('{putCall}', '{symbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}')"
-                #print(string)
-            break
+                insertStatement = f"INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES ('{putCall}', '{symbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}')"
+                #print(insertStatement)
+                mycursor.execute(insertStatement)
+                
     break
 
     # puts
@@ -64,3 +58,7 @@ for symbol in stockList:
         for strike in response['putExpDateMap'][expDate]:
             for contract in response['putExpDateMap'][expDate][strike]:
                 print(contract['symbol'])
+
+myresult = mycursor.fetchall()
+for x in myresult:
+  print(x)
