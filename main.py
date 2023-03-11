@@ -35,7 +35,8 @@ for symbol in stockList:
 
     response = requests.request("GET", url, headers=headers, data=payload).json()
     if response['status'] == 'FAILED':
-        print("error: " + response)
+        print("error: ")
+        print(response)
         break
     for currentMap in response:
         if currentMap != 'callExpDateMap' and currentMap != 'putExpDateMap':
