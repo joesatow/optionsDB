@@ -1,6 +1,7 @@
 import mysql.connector
 from datetime import datetime, timedelta
 from helper_funcs.stockList import getSymbols
+from ratelimiter import RateLimiter
 from tqdm import tqdm
 import os
 import requests
@@ -27,17 +28,21 @@ endDate = '2023-03-17'
 insertStatement = "INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES "
 strikeCount = 1
 
-for symbol in stockList:
+@RateLimiter(max_calls=115, period=60)
+def callAPI(symbol):
     url = f"https://api.tdameritrade.com/v1/marketdata/chains?apikey={tdAPIkey}&symbol={symbol}&strikeCount={strikeCount}&fromDate=2022-10-10&toDate={endDate}"
-
     payload={}
     headers = {}
+    return requests.request("GET", url, headers=headers, data=payload).json()
 
-    response = requests.request("GET", url, headers=headers, data=payload).json()
+for symbol in stockList:
+    response = callAPI(symbol)
+
     if response['status'] == 'FAILED':
         print("error: ")
         print(response)
         continue
+
     for currentMap in response:
         if currentMap != 'callExpDateMap' and currentMap != 'putExpDateMap':
             continue
@@ -56,7 +61,7 @@ for symbol in stockList:
 
                 insertStatement += f"('{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}'), "
 
-    #print(symbol + ' done...')                
+    print(symbol + ' done...')                
 
 insertStatement = insertStatement[:-2]
 try:
