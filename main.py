@@ -32,6 +32,4 @@ for symbol in stockList:
 
     print(response.text)
 
-    # Writing to sample.json
-    with open("sample.json", "w") as outfile:
-        outfile.write(response)
+    break
