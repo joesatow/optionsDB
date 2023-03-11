@@ -3,19 +3,27 @@ from datetime import datetime, timedelta
 from helper_funcs.stockList import getSymbols
 import os
 import requests
-import time
+import json
 
 mysqlPass = os.environ['mysqlpass']
 tdAPIkey = os.environ['td_api_key']
 stockList = getSymbols()
 
-# mydb = mysql.connector.connect(
-#   host="localhost",
-#   user="root",
-#   password=mysqlPass
-# )
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  password=mysqlPass,
+  database="mydatabase"
+)
 
-# print(mydb)
+mycursor = mydb.cursor()
+
+mycursor.execute("SELECT * FROM todaysDate")
+
+myresult = mycursor.fetchall()
+for x in myresult:
+  print(x)
+
 
 # today = datetime.today().strftime('%Y-%m-%d')
 today = datetime.today()
@@ -36,8 +44,21 @@ for symbol in stockList:
     for expDate in response['callExpDateMap']:
         for strike in response['callExpDateMap'][expDate]:
             for contract in response['callExpDateMap'][expDate][strike]:
-                print(contract['symbol'])
-    
+                #print(json.dumps(contract, indent=2))
+                putCall = contract['putCall']
+                symbol = contract['symbol']
+                description = contract['description']
+                bid = contract['bid']
+                ask = contract['ask']
+                last = contract['ask']
+                mark = contract['mark']
+                openInterest = contract['openInterest']
+
+                string = f"INSERT INTO `todaysDate` (`putCall`, `symbol`, `description`, `bid`, `ask`, `last`, `mark`, `openInterest`) VALUES ('{putCall}', '{symbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{openInterest}')"
+                #print(string)
+            break
+    break
+
     # puts
     for expDate in response['putExpDateMap']:
         for strike in response['putExpDateMap'][expDate]:
