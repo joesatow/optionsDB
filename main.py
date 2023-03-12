@@ -23,7 +23,7 @@ today = datetime.today()
 friday = today + timedelta( (4-today.weekday()) % 7 )
 endDate = (friday + timedelta(days=35)).strftime('%Y-%m-%d')
 endDate = '2023-03-17'
-insertStatement = "INSERT INTO `todaysDate` (`symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `last`, `mark`, `volume`, `openInterest`) VALUES "
+insertStatement = "INSERT INTO cons (`date`, `symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `last`, `mark`, `volume`, `openInterest`) VALUES "
 strikeCount = 100
 
 def limited(until):
@@ -62,7 +62,7 @@ for symbol in stockList:
                 volume = contract['totalVolume']
                 openInterest = contract['openInterest']
 
-                insertStatement += f"('{symbol}','{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{volume}', '{openInterest}'), "
+                insertStatement += f"('{today}', '{symbol}', '{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{volume}', '{openInterest}'), "
 
     print(symbol + ' done...')                
 
@@ -71,10 +71,10 @@ try:
     mySql_insert_query = insertStatement
     mycursor.execute(mySql_insert_query)
     mydb.commit()
-    print(mycursor.rowcount, "records inserted successfully into todaysDate table")
+    print(mycursor.rowcount, "records inserted successfully into cons table")
     mycursor.close()
 except mysql.connector.Error as error:
-    print("Failed to insert record into Laptop table {}".format(error))
+    print("Failed to insert record into cons table {}".format(error))
 finally:
     if mydb.is_connected():
         mydb.close()
