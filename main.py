@@ -5,6 +5,7 @@ from ratelimiter import RateLimiter
 import os
 import requests
 import time
+import json
 
 mysqlPass = os.environ['mysqlpass']
 tdAPIkey = os.environ['td_api_key']
@@ -25,9 +26,12 @@ endDate = (friday + timedelta(days=35)).strftime('%Y-%m-%d')
 #endDate = '2023-03-17'
 insertStatement = "INSERT INTO cons (`date`, `symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `last`, `mark`, `volume`, `openInterest`) VALUES "
 strikeCount = 1000
+currentCount = 0
 
 def limited(until):
+    global currentCount
     duration = int(round(until - time.time()))
+    currentCount = 0
     print('Rate limited, sleeping for {:d} seconds'.format(duration))
 
 @RateLimiter(max_calls=115, period=60, callback=limited)
@@ -39,32 +43,36 @@ def callAPI(symbol):
 
 for symbol in stockList:
     response = callAPI(symbol)
+    currentCount += 1
 
     if response['status'] == 'FAILED':
         print("error: ")
         print(response)
         continue
 
+    # either callExpDateMap or putExpDateMap
     for currentMap in response:
         if currentMap != 'callExpDateMap' and currentMap != 'putExpDateMap':
             continue
         for expDate in response[currentMap]:
             for strike in response[currentMap][expDate]:
-                contract = response[currentMap][expDate][strike][0]
-                #print(json.dumps(contract, indent=2))
-                putCall = contract['putCall']
-                contractSymbol = contract['symbol']
-                description = contract['description']
-                bid = contract['bid']
-                ask = contract['ask']
-                last = contract['ask']
-                mark = contract['mark']
-                volume = contract['totalVolume']
-                openInterest = contract['openInterest']
+                for contract in response[currentMap][expDate][strike]:
+                    #print(json.dumps(contract, indent=2))
+                    if contract['settlementType'] == 'A':
+                        continue
+                    putCall = contract['putCall']
+                    contractSymbol = contract['symbol']
+                    description = contract['description']
+                    bid = contract['bid']
+                    ask = contract['ask']
+                    last = contract['ask']
+                    mark = contract['mark']
+                    volume = contract['totalVolume']
+                    openInterest = contract['openInterest']
 
-                insertStatement += f"('{today}', '{symbol}', '{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{volume}', '{openInterest}'), "
+                    insertStatement += f"('{today}', '{symbol}', '{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{volume}', '{openInterest}'), "
 
-    print(symbol + ' done...')                
+    print(symbol + ' done...' + str(currentCount))                
 
 insertStatement = insertStatement[:-2]
 try:
@@ -78,4 +86,4 @@ except mysql.connector.Error as error:
 finally:
     if mydb.is_connected():
         mydb.close()
-        print("MySQL connection is closedd")
+        print("MySQL connection is closed")
