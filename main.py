@@ -78,4 +78,4 @@ except mysql.connector.Error as error:
 finally:
     if mydb.is_connected():
         mydb.close()
-        print("MySQL connection is closed")
+        print("MySQL connection is closedd")
