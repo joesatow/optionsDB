@@ -22,9 +22,9 @@ mycursor = mydb.cursor()
 today = datetime.today()
 friday = today + timedelta( (4-today.weekday()) % 7 )
 endDate = (friday + timedelta(days=35)).strftime('%Y-%m-%d')
-endDate = '2023-03-17'
+#endDate = '2023-03-17'
 insertStatement = "INSERT INTO cons (`date`, `symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `last`, `mark`, `volume`, `openInterest`) VALUES "
-strikeCount = 100
+strikeCount = 1000
 
 def limited(until):
     duration = int(round(until - time.time()))
