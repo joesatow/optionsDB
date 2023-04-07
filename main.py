@@ -5,7 +5,7 @@ from ratelimiter import RateLimiter
 import os
 import requests
 import time
-#import json
+import json
 
 mysqlPass = os.environ['mysqlpass']
 tdAPIkey = os.environ['td_api_key']
