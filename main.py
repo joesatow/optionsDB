@@ -24,7 +24,7 @@ today = datetime.today()
 friday = today + timedelta( (4-today.weekday()) % 7 )
 endDate = (friday + timedelta(days=35)).strftime('%Y-%m-%d')
 #endDate = '2023-03-17'
-insertStatement = "INSERT INTO cons (`date`, `symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `last`, `mark`, `volume`, `openInterest`) VALUES "
+insertStatement = "INSERT INTO cons (`date`, `symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `low`, `high`, `last`, `mark`, `volume`, `openInterest`) VALUES "
 strikeCount = 1000
 currentCount = 0
 
@@ -65,12 +65,14 @@ for symbol in stockList:
                     description = contract['description']
                     bid = contract['bid']
                     ask = contract['ask']
+                    low = contract['lowPrice']
+                    high = contract['highPrice']
                     last = contract['ask']
                     mark = contract['mark']
                     volume = contract['totalVolume']
                     openInterest = contract['openInterest']
 
-                    insertStatement += f"('{today}', '{symbol}', '{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{last}', '{mark}', '{volume}', '{openInterest}'), "
+                    insertStatement += f"('{today}', '{symbol}', '{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{low}', '{high}', '{last}', '{mark}', '{volume}', '{openInterest}'), "
 
     print(symbol + ' done...' + str(currentCount))                
 
