@@ -10,7 +10,7 @@ insertStatement = "INSERT INTO cons (`date`, `symbol`, `putCall`, `contractSymbo
 
 pbar = tqdm(stockList, bar_format='{l_bar}{bar:50}{r_bar}{bar:-10b}', colour='green')
 for symbol in pbar:  
-    pbar.set_description("Processing %s" % symbol)
+    pbar.set_description("Processing %s" % symbol.center(6))
     response = callAPI(symbol)
 
     insertStatement += parse_response(response, symbol)
