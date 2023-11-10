@@ -4,7 +4,6 @@ from helper_funcs.api_functions import callAPI
 from helper_funcs.parse_response import parse_response
 from tqdm import tqdm
 
-
 stockList = getSymbols()
 
 insertStatement = "INSERT INTO cons (`date`, `symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `low`, `high`, `last`, `mark`, `volume`, `openInterest`) VALUES "
