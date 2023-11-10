@@ -1,91 +1,20 @@
-import mysql.connector
-from datetime import datetime, timedelta
 from helper_funcs.stockList import getSymbols
-from ratelimiter import RateLimiter
-import os
-import requests
-import time
-import json
+from helper_funcs.mysql_functions import insert_into_db
+from helper_funcs.api_functions import callAPI
+from helper_funcs.parse_response import parse_response
+from tqdm import tqdm
 
-mysqlPass = os.environ['mysqlpass']
-tdAPIkey = os.environ['td_api_key']
+
 stockList = getSymbols()
 
-mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password=mysqlPass,
-  database="options"
-)
-
-mycursor = mydb.cursor()
-
-today = datetime.today()
-friday = today + timedelta( (4-today.weekday()) % 7 )
-endDate = (friday + timedelta(days=35)).strftime('%Y-%m-%d')
-#endDate = '2023-03-17'
 insertStatement = "INSERT INTO cons (`date`, `symbol`, `putCall`, `contractSymbol`, `description`, `bid`, `ask`, `low`, `high`, `last`, `mark`, `volume`, `openInterest`) VALUES "
-strikeCount = 1000
-currentCount = 0
 
-def limited(until):
-    global currentCount
-    duration = int(round(until - time.time()))
-    currentCount = 0
-    print('Rate limited, sleeping for {:d} seconds'.format(duration))
-
-@RateLimiter(max_calls=115, period=60, callback=limited)
-def callAPI(symbol):
-    url = f"https://api.tdameritrade.com/v1/marketdata/chains?apikey={tdAPIkey}&symbol={symbol}&strikeCount={strikeCount}&fromDate=2022-10-10&toDate={endDate}"
-    payload={}
-    headers = {}
-    return requests.request("GET", url, headers=headers, data=payload).json()
-
-for symbol in stockList:
+pbar = tqdm(stockList, bar_format='{l_bar}{bar:50}{r_bar}{bar:-10b}', colour='green')
+for symbol in pbar:  
+    pbar.set_description("Processing %s" % symbol)
     response = callAPI(symbol)
-    currentCount += 1
 
-    if response['status'] == 'FAILED':
-        print("error: ")
-        print(response)
-        continue
-
-    # either callExpDateMap or putExpDateMap
-    for currentMap in response:
-        if currentMap != 'callExpDateMap' and currentMap != 'putExpDateMap':
-            continue
-        for expDate in response[currentMap]:
-            for strike in response[currentMap][expDate]:
-                for contract in response[currentMap][expDate][strike]:
-                    #print(json.dumps(contract, indent=2))
-                    if contract['settlementType'] == 'A':
-                        continue
-                    putCall = contract['putCall']
-                    contractSymbol = contract['symbol']
-                    description = contract['description']
-                    bid = contract['bid']
-                    ask = contract['ask']
-                    low = contract['lowPrice']
-                    high = contract['highPrice']
-                    last = contract['ask']
-                    mark = contract['mark']
-                    volume = contract['totalVolume']
-                    openInterest = contract['openInterest']
-
-                    insertStatement += f"('{today}', '{symbol}', '{putCall}', '{contractSymbol}', '{description}', '{bid}', '{ask}', '{low}', '{high}', '{last}', '{mark}', '{volume}', '{openInterest}'), "
-
-    print(symbol + ' done...' + str(currentCount))                
+    insertStatement += parse_response(response, symbol)
 
 insertStatement = insertStatement[:-2]
-try:
-    mySql_insert_query = insertStatement
-    mycursor.execute(mySql_insert_query)
-    mydb.commit()
-    print(mycursor.rowcount, "records inserted successfully into cons table")
-    mycursor.close()
-except mysql.connector.Error as error:
-    print("Failed to insert record into cons table {}".format(error))
-finally:
-    if mydb.is_connected():
-        mydb.close()
-        print("MySQL connection is closed")
+insert_into_db(insertStatement)
