@@ -25,3 +25,23 @@ def insert_into_db(insert_statement):
         if mydb.is_connected():
             mydb.close()
             print("MySQL connection is closed")
+
+def getSymbols():
+    mycursor.execute("SELECT * FROM Symbols")
+    return mycursor.fetchall()
+
+
+def main():
+    # test_statement = """
+    # INSERT IGNORE INTO Contracts (symbol_id, contract_symbol, description, call_put, strike_price, exp_date) 
+    # VALUES 
+    # ('1', 'aapl2311sd30150c', 'aapl 150c sdfs', 'CALL', 150.00, '2023-11-28'), 
+    # ('1', 'aapl231130154c', 'aapl 150c sdfs', 'CALL', 150.00, '2023-11-28'), 
+    # ('1', 'aapl23113d0150c', 'aapl 150c sdfs', 'CALL', 150.00, '2023-11-28');
+    # """
+    # insert_into_db(test_statement)
+    mycursor.execute("SELECT * FROM Symbols")
+    print(mycursor.fetchall())
+
+if __name__ == "__main__":
+    main()

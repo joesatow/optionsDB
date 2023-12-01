@@ -6,7 +6,7 @@ import requests
 
 tdAPIkey = GetSecret("TDAmeritrade-API")
 strikeCount = 1000
-endDate = get_end_date()
+endDate = get_end_date(35)
 
 period_seconds = 60
 @sleep_and_retry

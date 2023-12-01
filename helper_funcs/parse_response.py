@@ -1,7 +1,7 @@
 from helper_funcs.dateFunctions import get_today
 
 today = get_today().strftime("%Y-%m-%d")
-today = ("2023-11-11")
+#today = ("2023-11-17")
 
 def parse_response(response, symbol):
     insert_statement_to_apppend = "" 

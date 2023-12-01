@@ -1,5 +1,5 @@
 *.pyc
 *.env
 .vscode/launch.json
-truncateTodayOnly.py
-truncateWholeConsTable.py
+tools/*
+tests/*
