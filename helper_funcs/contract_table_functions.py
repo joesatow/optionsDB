@@ -12,6 +12,8 @@ def get_append_contract_data(response, symbol_id):
                 for contract in response[currentMap][expDate][strike]:
                     if contract['settlementType'] == 'A':
                         continue
+                    if contract['nonStandard']:
+                        continue
                     description = contract['description']
                     call_put = contract['putCall']
                     strike_price = contract['strikePrice']

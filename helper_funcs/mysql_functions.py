@@ -12,36 +12,33 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-def insert_into_db(insert_statement):
+def insert_into_db(insert_statement, table):
     try:
         mySql_insert_query = insert_statement
         mycursor.execute(mySql_insert_query)
         mydb.commit()
-        print(mycursor.rowcount, "records inserted successfully into cons table")
-        mycursor.close()
+        print(mycursor.rowcount, f"records inserted successfully into {table} table")
+        #mycursor.close()
     except mysql.connector.Error as error:
-        print("Failed to insert record into cons table {}".format(error))
+        print("Failed to insert record into {} table. \nError: {}".format(table, error))
     finally:
         if mydb.is_connected():
-            mydb.close()
-            print("MySQL connection is closed")
+            #mydb.close()
+            #print("MySQL connection is closed")
+            pass
 
-def getSymbols():
+def get_symbols_from_table():
     mycursor.execute("SELECT * FROM Symbols")
     return mycursor.fetchall()
 
+def getContracts():
+    mycursor.execute("SELECT contract_symbol, contract_id FROM Contracts")
+    return mycursor.fetchall()
 
 def main():
-    # test_statement = """
-    # INSERT IGNORE INTO Contracts (symbol_id, contract_symbol, description, call_put, strike_price, exp_date) 
-    # VALUES 
-    # ('1', 'aapl2311sd30150c', 'aapl 150c sdfs', 'CALL', 150.00, '2023-11-28'), 
-    # ('1', 'aapl231130154c', 'aapl 150c sdfs', 'CALL', 150.00, '2023-11-28'), 
-    # ('1', 'aapl23113d0150c', 'aapl 150c sdfs', 'CALL', 150.00, '2023-11-28');
-    # """
-    # insert_into_db(test_statement)
-    mycursor.execute("SELECT * FROM Symbols")
-    print(mycursor.fetchall())
+    # mycursor.execute("SELECT * FROM Symbols")
+    # print(mycursor.fetchall())
+   insert_into_db("INSERT INTO Contracts VALUES ()", "Contracts")
 
 if __name__ == "__main__":
     main()
