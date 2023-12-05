@@ -25,7 +25,6 @@ def callAPI(symbol):
         print(response)
         raise RateLimitException('custom exception',period_remaining=period_seconds)
     
-    
     key_order = ('symbol', 'callExpDateMap', 'putExpDateMap')
     modified_dict = dict()
     for key in key_order:
