@@ -1,4 +1,6 @@
 from tqdm import tqdm
+bar_length = 40
+message_length = 25
 
 def create_tqdm_progress_bar(list):
     global tqdm_object
@@ -9,16 +11,15 @@ def create_tqdm_progress_bar(list):
 
     if tqdm_object.total < 500:
         message = "Calling API for {}"
-        tqdm_object.bar_format = '{l_bar}{bar:50}{r_bar}{bar:-10b}'
     else:
         message = "Processing contracts"
-        description = message.ljust(35,'.')
+        description = message.ljust(message_length,'.')
         tqdm_object.set_description(description)
-        tqdm_object.bar_format = '{l_bar}{bar:50}{r_bar}{bar:-10b}'
+    tqdm_object.bar_format = '{l_bar}{bar:%s}{r_bar}{bar:-10b}' % bar_length
     return tqdm_object
 
 def update_tqdm_progress_bar(symbol):
-    description = message.format(symbol).ljust(35,'.')
+    description = message.format(symbol).ljust(message_length,'.')
     tqdm_object.set_description(description)
 
 def main():

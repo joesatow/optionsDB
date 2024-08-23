@@ -7,7 +7,13 @@ from helper_funcs.progress_bar import create_tqdm_progress_bar
 from helper_funcs.symbols import get_symbols
 from tqdm import tqdm
 
+import time
+start_time = time.time()
+
 symbol_list = get_symbols()
+
+testing = False
+test_list = ['DHR','BABA','CMG']
 
 untracked_contracts_insert_statement = "INSERT IGNORE INTO Contracts (symbol_id, contract_symbol, description, call_put, strike_price, exp_date) VALUES "
 contract_list = []
@@ -15,9 +21,13 @@ for item in symbol_list:
     symbol_id = item[0]
     symbol = item[1]
 
+    if testing:
+        if symbol not in test_list:
+            continue
+
     response = callAPI(symbol)
 
-    contract_list.extend(get_contracts(response))
+    contract_list.extend(get_contracts(response)) 
     untracked_contracts_insert_statement += get_append_contract_data(response, symbol_id)
 
 insert_into_db(untracked_contracts_insert_statement[:-1], 'Contracts')
@@ -35,3 +45,17 @@ insert_into_db(prices_insert_statement[:-1], 'Prices')
 # sequence of events
 # check for new contracts
 # insert prices
+
+end_time = time.time()
+execution_time_seconds = end_time - start_time
+
+if execution_time_seconds < 60:
+    seconds = round(execution_time_seconds,3)
+    execution_time = "{} seconds".format(seconds)
+else:
+    minutes = int(execution_time_seconds // 60)
+    seconds = round(execution_time_seconds % 60, 3)
+    execution_time = "{} minutes, {} seconds".format(minutes, seconds)
+
+print("Execution time in total seconds: ", execution_time_seconds)
+print("Execution time: ", execution_time)
