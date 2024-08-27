@@ -18,6 +18,8 @@ test_list = ['DHR','BABA','CMG']
 untracked_contracts_insert_statement = "INSERT IGNORE INTO Contracts (symbol_id, contract_symbol, description, call_put, strike_price, exp_date) VALUES "
 contract_list = []
 for item in symbol_list:  
+    if item[1] == '$SPX.X':
+        continue
     symbol_id = item[0]
     symbol = item[1]
 
@@ -26,9 +28,13 @@ for item in symbol_list:
             continue
 
     response = callAPI(symbol)
+    if len(response) == 0:
+        continue
 
     contract_list.extend(get_contracts(response)) 
     untracked_contracts_insert_statement += get_append_contract_data(response, symbol_id)
+
+print(len(contract_list))
 
 insert_into_db(untracked_contracts_insert_statement[:-1], 'Contracts')
 

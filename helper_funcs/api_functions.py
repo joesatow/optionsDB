@@ -42,6 +42,10 @@ def callAPI(symbol):
     key_order = ('symbol', 'callExpDateMap', 'putExpDateMap')
     modified_dict = dict()
     for key in key_order:
-        modified_dict[key] = response[key]
+        try:
+            modified_dict[key] = response[key]
+        except:
+            print("bad symbol: " + symbol)
+
 
     return modified_dict
