@@ -33,7 +33,7 @@ def parse_response(response):
     return insert_statement_to_apppend
 
 
-def get_contracts(response):
+def create_contract_object(response, symbol_id):
     current_symbol_contracts = []
     symbol = response['symbol']
 
@@ -49,6 +49,8 @@ def get_contracts(response):
                     if contract['nonStandard']:
                         continue
                     contract['symbol'] = construct_contract_symbol(symbol, expDate, currentMap, strike)
+                    contract['symbol_id'] = symbol_id
+                    contract['exp_date'] = expDate.split(":")[0]
                     current_symbol_contracts.append(contract)
     
     return current_symbol_contracts
